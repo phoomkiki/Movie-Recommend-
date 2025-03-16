@@ -292,6 +292,7 @@ if __name__ == "__main__":
 
 
 '''
+    st.markdown(docm)
 # st.write(docm):
 # Load PM2.5 data
 def load_pm25_data():
