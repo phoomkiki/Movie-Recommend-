@@ -25,7 +25,7 @@ unique_genres = sorted(set(genre for sublist in movies["genres_list"] for genre 
 
 def doc():
     docm = '''
-Data Used
+Data Used for Movie recomanded
 
 The dataset from dataset.imdbws provides fascinating information related to movies. Different countries have varying preferences for popular movie genres. This database includes a wide range of details, such as movie titles, ratings, and the popularity of films across different nations. It can be used as a reference to randomly suggest an interesting movie for users to explore.
 
@@ -141,7 +141,7 @@ knn = NearestNeighbors(n_neighbors=6, metric="cosine")
 
 
 
-Data Used
+Data Used for PM 2.5
 This dataset, sourced from Kaggle, provides information related to weather conditions in Chiang Mai, Thailand. It specifically includes PM2.5 data from 2016 to 2023, obtained from Air4Thai, along with other meteorological attributes from the Thai Meteorological Department. The dataset contains various weather indicators, such as the minimum and maximum atmospheric pressure recorded on a given day, the average temperature throughout the day, and other factors that reflect air quality and PM2.5 levels in Chiang Mai.
 
 https://www.kaggle.com/datasets/natchaphonkamhaeng/pm-25-chiangmai-thailand
