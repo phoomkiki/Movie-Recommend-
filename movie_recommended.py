@@ -412,11 +412,13 @@ def pm25_forecasting():
 
 # Main function
 def main(): 
-    page = st.sidebar.selectbox("Select a page", ["Movie Recommender", "PM2.5 Forecasting"])  
+    page = st.sidebar.selectbox("Select a page", ["Movie Recommender", "PM2.5 Forecasting","Document"])  
     if page == "Movie Recommender":
         movie_recommender()
     elif page == "PM2.5 Forecasting":
         pm25_forecasting()
+    elif page == "Document":
+        doc()
 
 if __name__ == "__main__":
     main()
