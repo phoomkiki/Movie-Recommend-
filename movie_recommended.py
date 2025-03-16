@@ -223,7 +223,7 @@ def build_lstm_model(input_shape):
     model.compile(optimizer='adam', loss='mse')  # Compile model with Mean Squared Error loss
     return model
 
-# ✅ Use @st.cache_resource to ensure the model is trained only once
+#  Use @st.cache_resource to ensure the model is trained only once
 @st.cache_resource
 def train_model():
     df = load_data()
@@ -248,21 +248,21 @@ def train_model():
 
 # 5. Create Streamlit app for user interaction
 def PM25():
-    st.title("📊 PM2.5 Forecasting using LSTM")
+    st.title(" PM2.5 Forecasting using LSTM")
 
-    # ✅ Load pre-trained model
+    #  Load pre-trained model
     model, scaler_X, scaler_y, feature_cols, df, mse = train_model()
 
-    # ✅ User selects a date
-    selected_date = st.date_input("📅 Select a date", datetime.date(2016, 7, 11))
+    #  User selects a date
+    selected_date = st.date_input(" Select a date", datetime.date(2016, 7, 11))
 
-    # ✅ Filter data for the selected date
+    #  Filter data for the selected date
     df_filtered = df[df["Date"] == pd.to_datetime(selected_date)]
     st.write("### Data Preview:")
     st.dataframe(df_filtered.head())
 
-    # ✅ Predict button
-    if st.button("🔮 Predict PM2.5"):
+    #  Predict button
+    if st.button(" Predict PM2.5"):
         if not df_filtered.empty:
             X_selected = df_filtered[feature_cols].values  # Extract selected features
             X_selected_scaled = scaler_X.transform(X_selected)  # Normalize input
@@ -271,14 +271,14 @@ def PM25():
             y_pred_scaled = model.predict(X_selected_scaled)
             y_pred = scaler_y.inverse_transform(y_pred_scaled)  # Convert back to original scale
 
-            # ✅ Display prediction result
-            st.write(f"⛅ Predicted PM2.5 for {selected_date}: ")
+            #  Display prediction result
+            st.write(f" Predicted PM2.5 for {selected_date}: ")
             st.write(f"### {y_pred[0][0]:.2f}")
-            st.write(f"🎯 Mean Squared Error: {mse:.2f}")
+            st.write(f" Mean Squared Error: {mse:.2f}")
 
-            st.success("✅ Prediction Completed!")
+            st.success(" Prediction Completed!")
         else:
-            st.error("❌ No data available for the selected date. Please choose another date.")
+            st.error(" No data available for the selected date. Please choose another date.")
 
 # 6. Run Streamlit app
 def main(): 
@@ -388,14 +388,14 @@ def movie_recommender():
 
 # PM2.5 Prediction Page
 def pm25_forecasting():
-    st.title("📊 PM2.5 Forecasting using LSTM")
+    st.title(" PM2.5 Forecasting using LSTM")
     model, scaler_X, scaler_y, feature_cols, df, mse = train_pm25_model()
-    selected_date = st.date_input("📅 Select a date", datetime.date(2016, 7, 11))
+    selected_date = st.date_input(" Select a date", datetime.date(2016, 7, 11))
     df_filtered = df[df["Date"] == pd.to_datetime(selected_date)]
     st.write("### Data Preview:")
     st.dataframe(df_filtered.head())
     
-    if st.button("🔮 Predict PM2.5"):
+    if st.button(" Predict PM2.5"):
         if not df_filtered.empty:
             X_selected = df_filtered[feature_cols].values  
             X_selected_scaled = scaler_X.transform(X_selected)  
@@ -403,12 +403,12 @@ def pm25_forecasting():
             y_pred_scaled = model.predict(X_selected_scaled)
             y_pred = scaler_y.inverse_transform(y_pred_scaled)
             
-            st.write(f"⛅ Predicted PM2.5 for {selected_date}: ")
+            st.write(f" Predicted PM2.5 for {selected_date}: ")
             st.write(f"### {y_pred[0][0]:.2f}")
-            st.write(f"🎯 Mean Squared Error: {mse:.2f}" )
-            st.success("✅ Prediction Completed!")
+            st.write(f" Mean Squared Error: {mse:.2f}" )
+            st.success(" Prediction Completed!")
         else:
-            st.error("❌ ไม่มีข้อมูลในวันที่ที่เลือก กรุณาเลือกวันใหม่")
+            st.error("No data, select new date!")
 
 # Main function
 def main(): 
