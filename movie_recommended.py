@@ -24,76 +24,153 @@ movies["numVotes"] = movies["numVotes"].astype(int)
 # Get unique genres
 unique_genres = sorted(set(genre for sublist in movies["genres_list"] for genre in sublist))
 
-def movie_recommendation_doc():
+def doc1():
     st.markdown("""
     # 🎬 Movie Recommendation System
+    ---
     
-    **Data Source:** [IMDb Datasets](https://datasets.imdbws.com/)
+    ## 📊 Data Used for Movie Recommendation
     
-    This dataset provides information on movies, including:
-    - **Genres** – Categories of movies
-    - **Average Rating** – Movie rating score
-    - **Number of Votes** – How many people voted for the movie
+    The dataset from [IMDb](https://datasets.imdbws.com/) provides fascinating information related to movies, including:
+    - 🎭 **Genres** – The category or type of a movie.
+    - ⭐ **Average Rating** – The score or rating of a movie.
+    - 🗳️ **Number of Votes** – The number of people who voted, indicating the reliability of the rating.
     
-    ## 🎯 Problem Type
-    - **Recommender System**: Suggests movies based on genre, rating, and popularity.
+    ### 🏆 Problem Type
+    A **Recommender System** suggests movies that users might like based on data such as ratings, number of votes, and genres.
     
-    ## 📌 Model Used
-    - **KNN (Content-Based Filtering)**: Recommends movies based on their content (genre, votes, and rating).
+    ### 🧠 Using Models
+    - **KNN Content-Based Filtering** recommends movies based on content similarity (e.g., genre, number of votes).
     
     ---
-    **Steps:**
-    1. Load IMDb dataset (`title.basics.tsv`, `title.ratings.tsv`).
-    2. Filter movies based on genre and rating.
-    3. Encode genres using MultiLabelBinarizer.
-    4. Use KNN to find similar movies.
+    ## 📌 Steps:
     
-    ---
-    **Example Python Code:**
+    ### 1️⃣ Import the necessary libraries
     ```python
+    import pandas as pd
+    import numpy as np
+    from sklearn.preprocessing import MultiLabelBinarizer
     from sklearn.neighbors import NearestNeighbors
+    import warnings
+    warnings.filterwarnings("ignore", category=UserWarning)
+    ```
     
+    ### 2️⃣ Load and clean the data
+    ```python
+    movies = pd.read_csv("title.basics.tsv", sep="\t", low_memory=False, dtype=str)
+    ratings = pd.read_csv("title.ratings.tsv", sep="\t", low_memory=False)
+    ```
+    
+    - Filters movies only (`titleType == "movie"`)
+    - Merges movies with ratings
+    - Filters movies with **rating ≥ 7.0** and **votes > 10,000**
+    
+    ---
+    ### 3️⃣ Let users select genres
+    ```python
+    movies["genres_list"] = movies["genres"].apply(lambda x: x.split(","))
+    ```
+    - Users select genres from a **list of unique movie genres**.
+    - Movies are filtered based on the selected genres.
+    
+    ---
+    ### 4️⃣ Use KNN for recommendations
+    ```python
     knn = NearestNeighbors(n_neighbors=6, metric="cosine")
     ```
+    - **MultiLabelBinarizer** encodes genres as numerical data.
+    - **KNN (Cosine Similarity)** finds similar movies.
     
     """)
 
-def pm25_prediction_doc():
+def doc2():
     st.markdown("""
-    # 🌿 PM2.5 Prediction using LSTM
+    # 🌫️ PM2.5 Prediction System
+    ---
     
-    **Data Source:** [Kaggle - PM2.5 Chiang Mai](https://www.kaggle.com/datasets/natchaphonkamhaeng/pm-25-chiangmai-thailand)
+    ## 📊 Data Used for PM2.5 Prediction
     
-    This dataset includes meteorological attributes (2016-2023) affecting air quality in Chiang Mai, such as:
-    - **Temperature, Pressure, Humidity, Wind Speed**
-    - **PM2.5 Concentration** (Target variable)
+    The dataset from [Kaggle](https://www.kaggle.com/datasets/natchaphonkamhaeng/pm-25-chiangmai-thailand) includes:
+    - 📆 **Date** – The date of recorded weather data.
+    - ⬆️ **Pressure_max** – Maximum atmospheric pressure (hPa).
+    - 🌡️ **Temp_avg** – Average temperature (°C).
+    - 💨 **Wind Speed** – Average wind speed (m/s).
+    - 🌫️ **PM2.5** – Fine particulate matter concentration (µg/m³).
     
-    ## 🎯 Problem Type
-    - **Regression Problem**: Predict PM2.5 level on a given date based on historical data.
+    ### 📌 Problem Type
+    - **Regression Problem**: Predicts PM2.5 levels based on historical data.
     
-    ## 📌 Model Used
-    - **LSTM (Long Short-Term Memory)**: Suitable for time series prediction.
+    ### 🧠 Using Models
+    - **LSTM (Long Short-Term Memory)** is used for time-series forecasting.
     
     ---
-    **Steps:**
-    1. Load and preprocess data (`Weather_chiangmai.csv`).
-    2. Normalize data using `MinMaxScaler`.
-    3. Train LSTM model to predict PM2.5 levels.
+    ## 📌 Steps:
     
-    ---
-    **Example Python Code:**
+    ### 1️⃣ Import the necessary libraries
     ```python
+    from sklearn.metrics import mean_squared_error
+    import streamlit as st
+    import pandas as pd
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from sklearn.preprocessing import MinMaxScaler
+    from sklearn.model_selection import train_test_split
     from tensorflow.keras.models import Sequential
     from tensorflow.keras.layers import LSTM, Dense
+    ```
     
+    ### 2️⃣ Load and preprocess data
+    ```python
+    df = pd.read_csv("Weather_chiangmai.csv", parse_dates=["Date"], dayfirst=True)
+    df = df.dropna()
+    ```
+    
+    - **Missing values removed**
+    - **Date formatted for time-series analysis**
+    
+    ---
+    ### 3️⃣ Prepare data for LSTM model
+    ```python
+    X, y, scaler_X, scaler_y = prepare_data(df, feature_cols)
+    ```
+    - **Normalize data using MinMaxScaler**
+    - **Create sequences for LSTM training**
+    
+    ---
+    ### 4️⃣ Build and Train LSTM Model
+    ```python
     model = Sequential([
-        LSTM(50, activation='relu', return_sequences=True, input_shape=(24, len(features))),
+        LSTM(50, activation='relu', return_sequences=True, input_shape=(X.shape[1], X.shape[2])),
         LSTM(50, activation='relu'),
         Dense(1)
     ])
+    model.compile(optimizer='adam', loss='mse')
     ```
     
+    - **Two LSTM layers** for deep learning processing.
+    - **Adam optimizer** with Mean Squared Error loss function.
+    
+    ---
+    ### 5️⃣ Create a Streamlit Web App
+    ```python
+    st.title("PM2.5 Forecasting using LSTM")
+    ```
+    - Users select a **date** to predict PM2.5 levels.
+    - Displays real-time **data visualization** and predictions.
+    
+    ---
+    ### ✅ Prediction Example:
+    ```python
+    if st.button("Predict PM2.5"):
+        y_pred_scaled = model.predict(X_selected_scaled)
+        y_pred = scaler_y.inverse_transform(y_pred_scaled)
+        st.success(f"Predicted PM2.5: {y_pred[0][0]:.2f} µg/m³")
+    ```
+    - **Predicts PM2.5 levels** based on selected weather conditions.
+    - **Displays the forecasted value** along with Mean Squared Error.
+    
     """)
+
 # st.write(docm):
 # Load PM2.5 data
 # ฟังก์ชันโหลดข้อมูล
@@ -237,15 +314,15 @@ def pm25_forecasting():
 
 # Main function
 def main(): 
-    page = st.sidebar.selectbox("Select a page", ["Movie Recommender", "PM2.5 Forecasting","Document of Movie recommended","Document of PM2.5 Forecasting"])  
+    page = st.sidebar.selectbox("Select a page", ["Document of Movie recommended","Document of PM2.5 Forecasting","Movie Recommender", "PM2.5 Forecasting"])  
     if page == "Movie Recommender":
         movie_recommender()
     elif page == "PM2.5 Forecasting":
         pm25_forecasting()
     elif page == "Document of Movie recommended":
-        movie_recommendation_doc()
+        doc1()
     elif page == "Document of PM2.5 Forecasting":
-        pm25_prediction_doc()
+        doc2()
 
 if __name__ == "__main__":
     main()
