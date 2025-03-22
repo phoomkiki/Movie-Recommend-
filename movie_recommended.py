@@ -15,7 +15,7 @@ import random
 warnings.filterwarnings("ignore", category=UserWarning)
 
 # Load filtered IMDb data
-movies = pd.read_csv(r"Dataset\filtered_movies.csv", low_memory=False)
+movies = pd.read_csv("Dataset\filtered_movies.csv", low_memory=False)
 
 # Convert genres to lists
 movies["genres_list"] = movies["genres"].apply(lambda x: x.split(","))
