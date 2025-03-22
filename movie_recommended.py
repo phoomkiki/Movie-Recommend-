@@ -24,7 +24,7 @@ movies["numVotes"] = movies["numVotes"].astype(int)
 # Get unique genres
 unique_genres = sorted(set(genre for sublist in movies["genres_list"] for genre in sublist))
 
-def doc():
+def doc1():
     docm = '''
 Data Used for Movie recomanded
 
@@ -135,14 +135,12 @@ knn = NearestNeighbors(n_neighbors=6, metric="cosine")
 
 
 
-
-
-
-
-
-
-
-Data Used for PM 2.5
+'''
+    st.markdown(docm)
+    
+def doc2():
+    doclm ='''
+    Data Used for PM 2.5
 This dataset, sourced from Kaggle, provides information related to weather conditions in Chiang Mai, Thailand. It specifically includes PM2.5 data from 2016 to 2023, obtained from Air4Thai, along with other meteorological attributes from the Thai Meteorological Department. The dataset contains various weather indicators, such as the minimum and maximum atmospheric pressure recorded on a given day, the average temperature throughout the day, and other factors that reflect air quality and PM2.5 levels in Chiang Mai.
 
 https://www.kaggle.com/datasets/natchaphonkamhaeng/pm-25-chiangmai-thailand
@@ -289,11 +287,9 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-'''
-    st.markdown(docm)
+    
+    '''
+    st.markdown(doclm)
 # st.write(docm):
 # Load PM2.5 data
 # ฟังก์ชันโหลดข้อมูล
@@ -437,13 +433,15 @@ def pm25_forecasting():
 
 # Main function
 def main(): 
-    page = st.sidebar.selectbox("Select a page", ["Movie Recommender", "PM2.5 Forecasting","Document"])  
+    page = st.sidebar.selectbox("Select a page", ["Movie Recommender", "PM2.5 Forecasting","Document of Movie recommended","Document of PM2.5 Forecasting"])  
     if page == "Movie Recommender":
         movie_recommender()
     elif page == "PM2.5 Forecasting":
         pm25_forecasting()
-    elif page == "Document":
-        doc()
+    elif page == "Document of Movie recommended":
+        doc1()
+    elif page == "Document of PM2.5 Forecasting":
+        doc2()
 
 if __name__ == "__main__":
     main()
