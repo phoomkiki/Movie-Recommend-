@@ -7,8 +7,9 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 import warnings
 import datetime
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense
+from tensorflow.keras.models import Sequential # type: ignore
+from tensorflow.keras.layers import LSTM, Dense # type: ignore
+import random
 
 # Suppress warnings
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -295,20 +296,21 @@ if __name__ == "__main__":
     st.markdown(docm)
 # st.write(docm):
 # Load PM2.5 data
+# ฟังก์ชันโหลดข้อมูล
 def load_pm25_data():
-    df = pd.read_csv(r"VPJ-main\Weather_chiangmai.csv", parse_dates=["Date"], dayfirst=True)
+    df = pd.read_csv("VPJ-main/Weather_chiangmai.csv", parse_dates=["Date"], dayfirst=True)
     df["Date"] = pd.to_datetime(df["Date"], dayfirst=True)
     df = df.dropna()
     return df
 
-# Prepare data for LSTM model
+# เตรียมข้อมูล
 def prepare_pm25_data(df, feature_cols, target_col='PM25', lookback=24):
     data_X = df[feature_cols].values  
     data_y = df[[target_col]].values  
-    
+
     scaler_X = MinMaxScaler()
     scaler_y = MinMaxScaler()
-    
+
     data_X_scaled = scaler_X.fit_transform(data_X)
     data_y_scaled = scaler_y.fit_transform(data_y)
 
@@ -316,10 +318,10 @@ def prepare_pm25_data(df, feature_cols, target_col='PM25', lookback=24):
     for i in range(len(data_X_scaled) - lookback):
         X.append(data_X_scaled[i:i+lookback])  
         y.append(data_y_scaled[i+lookback])  
-    
+
     return np.array(X), np.array(y), scaler_X, scaler_y
 
-# Build LSTM model
+# สร้างโมเดล LSTM
 def build_lstm_model(input_shape):
     model = Sequential([ 
         LSTM(50, activation='relu', return_sequences=True, input_shape=input_shape),
@@ -329,7 +331,7 @@ def build_lstm_model(input_shape):
     model.compile(optimizer='adam', loss='mse')
     return model
 
-# Cache trained LSTM model
+# เทรนและแคชโมเดล
 @st.cache_resource
 def train_pm25_model():
     df = load_pm25_data()
@@ -343,10 +345,10 @@ def train_pm25_model():
 
     model = build_lstm_model((X.shape[1], X.shape[2]))
     model.fit(X_train, y_train, epochs=10, batch_size=16, verbose=1)
-    
+
     mse = mean_squared_error(y_test, model.predict(X_test))
 
-    return model, scaler_X, scaler_y, feature_cols, df, mse
+    return model, scaler_X, scaler_y, feature_cols, mse
 
 # Movie Recommendation Page
 def movie_recommender():
@@ -388,27 +390,50 @@ def movie_recommender():
 
 # PM2.5 Prediction Page
 def pm25_forecasting():
-    st.title(" PM2.5 Forecasting using LSTM")
-    model, scaler_X, scaler_y, feature_cols, df, mse = train_pm25_model()
-    selected_date = st.date_input(" Select a date", datetime.date(2016, 7, 11))
-    df_filtered = df[df["Date"] == pd.to_datetime(selected_date)]
-    st.write("### Data Preview:")
-    st.dataframe(df_filtered.head())
-    
-    if st.button(" Predict PM2.5"):
-        if not df_filtered.empty:
-            X_selected = df_filtered[feature_cols].values  
-            X_selected_scaled = scaler_X.transform(X_selected)  
-            X_selected_scaled = np.expand_dims(X_selected_scaled, axis=0)
-            y_pred_scaled = model.predict(X_selected_scaled)
-            y_pred = scaler_y.inverse_transform(y_pred_scaled)
-            
-            st.write(f" Predicted PM2.5 for {selected_date}: ")
-            st.write(f"### {y_pred[0][0]:.2f}")
-            st.write(f" Mean Squared Error: {mse:.2f}" )
-            st.success(" Prediction Completed!")
-        else:
-            st.error("No data, select new date!")
+    st.title("PM2.5 Forecasting using LSTM")
+
+    model, scaler_X, scaler_y, feature_cols, mse = train_pm25_model()
+
+    st.write("### Enter meteorological variable values ​​(or press the button to randomize values))")
+
+    # กำหนดช่วงค่าต่ำสุด-สูงสุดของแต่ละตัวแปร
+    param_ranges = {
+        'Pressure_max': (980, 1020), 'Pressure_min': (980, 1020), 'Pressure_avg': (980, 1020),
+        'Temp_max': (10, 42), 'Temp_min': (5, 30), 'Temp_avg': (10, 35),
+        'Humidity_max': (30, 100), 'Humidity_min': (10, 80), 'Humidity_avg': (20, 90),
+        'Precipitation': (0, 100), 'Sunshine': (0, 12),
+        'Evaporation': (0, 10), 'Wind_direct': (0, 360), 'Wind_speed': (0, 20)
+    }
+
+    # ตัวแปรเก็บค่าที่ผู้ใช้ใส่
+    user_input = {}
+
+    # สร้างปุ่มสุ่มค่า
+    if st.button("🎲 Random parameter valuesร์"):
+        for col, (min_val, max_val) in param_ranges.items():
+            user_input[col] = round(random.uniform(min_val, max_val), 2)
+    else:
+        for col, (min_val, max_val) in param_ranges.items():
+            user_input[col] = st.number_input(
+                f"{col} ({min_val}-{max_val})", 
+                min_value=float(min_val),  
+                max_value=float(max_val),  
+                value=float((min_val + max_val) / 2),  
+                step=0.1  
+            )
+    if st.button("🔍 Predict PM2.5"):
+        X_selected = np.array([list(user_input.values())])  
+        X_selected_scaled = scaler_X.transform(X_selected)  
+        X_selected_scaled = np.expand_dims(X_selected_scaled, axis=0)  
+
+        y_pred_scaled = model.predict(X_selected_scaled)
+        y_pred = scaler_y.inverse_transform(y_pred_scaled)
+
+        st.write(f"### 🎯 Predicted PM2.5: {y_pred[0][0]:.2f} µg/m³")
+        st.write(f"📉 Mean Squared Error: {mse:.2f}")
+        st.success("✅ Prediction Completed!")
+
+
 
 # Main function
 def main(): 
