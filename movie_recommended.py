@@ -409,7 +409,7 @@ def pm25_forecasting():
     user_input = {}
 
     # สร้างปุ่มสุ่มค่า
-    if st.button("🎲 Random parameter valuesร์"):
+    if st.button("🎲 Random parameter values"):
         for col, (min_val, max_val) in param_ranges.items():
             user_input[col] = round(random.uniform(min_val, max_val), 2)
     else:
